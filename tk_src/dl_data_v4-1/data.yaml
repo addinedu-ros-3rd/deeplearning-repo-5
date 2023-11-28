@@ -1,0 +1,15 @@
+names:
+- '-'
+- deer
+- human
+- wildboar
+nc: 4
+roboflow:
+  license: CC BY 4.0
+  project: dl_data_v4
+  url: https://universe.roboflow.com/drill01/dl_data_v4/dataset/1
+  version: 1
+  workspace: drill01
+test: ../test/images
+train: dl_data_v4-1/train/images
+val: dl_data_v4-1/valid/images
