@@ -7,11 +7,10 @@ import cv2, imutils
 import time, datetime
 from ultralytics import YOLO
 
-CONFIDENCE_THRESHOLD = 0.7  # 최소 정확도
-# 경계박스 색깔
-GREEN = (0, 255, 0)  # 사람의 경우 초록색
-RED = (0, 0 , 255)  # 타겟의 경우(사슴, 멧돼지) 빨간색
-WHITE = (255, 255, 255) # 경계박스 글씨 색 하얀색
+CONFIDENCE_THRESHOLD = 0.7
+GREEN = (0, 255, 0)
+RED = (0, 0 , 255)
+WHITE = (255, 255, 255)
 
 class_list = ['None', 'Deer', 'Human', 'wild boar']
 model = YOLO('best.pt')
@@ -52,6 +51,10 @@ class WindowClass(QMainWindow, from_class):
         
         self.camera.start()
         self.video = cv2.VideoCapture(-1)
+
+        self.pixmap2 = QPixmap(self.boxzone.width(), self.boxzone.height())
+        self.pixmap2.fill(Qt.transparent)
+        self.boxzone.setPixmap(self.pixmap2)
         # self.cameraStart()
         self.btnOpen.clicked.connect(self.openFile)
         # self.btnCamera.clicked.connect(self.clickCamera)
@@ -92,30 +95,41 @@ class WindowClass(QMainWindow, from_class):
     
         if self.isRecStart:
             self.writer.release()
+    
+    def draw_box(self, xmin, ymin, xmax, ymax):
+        painter = QPainter(self.boxzone.pixmap())
+    #     painter.setPen(QPen(Qt.red, 5, Qt.SolidLine))
+        painter.drawRect(xmin, ymin, (xmax - xmin), (ymax-ymin))
+        painter.end
 
     def updateCamera(self):
         retval, self.image = self.video.read()
         if retval:
             image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
 
-            h,w,c = image.shape
-            qimage = QImage(image.data, w, h, w*c, QImage.Format_RGB888)
-            
             detection = model(image)[0]
 
             for data in detection.boxes.data.tolist():
                 confidence = float(data[4])
 
                 if confidence < CONFIDENCE_THRESHOLD:
-                    continue  
+                    continue
 
-                xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])  # 경계박스의 너비, 높이 좌표
-                label = int(data[5])  # 인식한 객체의 라벨(이름)
+                xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])
+                label = int(data[5])
 
                 if label == 2:
-                    self.record_status.setText('check!')
-                else:
-                    self.record_status.setText('No')
+                    self.draw_box(xmin, ymin, xmax, ymax)
+                #     painter = QPainter(self.display.pixmap())
+                #     painter.setPen(QPen(Qt.red, 5, Qt.SolidLine))
+                    
+                #     # painter.drawRect(xmin, ymin, (xmax - xmin), (ymax-ymin))
+                #     painter.end
+                # else:
+                #     print("None")
+            h,w,c = image.shape
+            qimage = QImage(image.data, w, h, w*c, QImage.Format_RGB888)
+
             self.pixmap = self.pixmap.fromImage(qimage)
             self.pixmap = self.pixmap.scaled(self.display.width(), self.display.height())
             
@@ -131,16 +145,6 @@ class WindowClass(QMainWindow, from_class):
             self.btnCamera.setText("Camera on")
             self.isCameraOn = False
             self.cameraStop()
-
-
-    # def cameraStart(self):
-    #     self.camera.running = True
-    #     self.camera.start()
-    #     self.video = cv2.VideoCapture(-1)
-
-    # def cameraStop(self):
-    #     self.camera.running = False
-    #     self.video.release()
 
     def openFile(self):
         file = QFileDialog.getOpenFileName(filter='Image (*.*)')
