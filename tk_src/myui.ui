@@ -51,24 +51,27 @@
      <string/>
     </property>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="btnCamera">
-   <property name="geometry">
-    <rect>
-     <x>530</x>
-     <y>10</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Cam On</string>
-   </property>
+   <widget class="QLabel" name="boxzone">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>581</width>
+      <height>381</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <zorder>record_status</zorder>
+   <zorder>display</zorder>
+   <zorder>boxzone</zorder>
   </widget>
   <widget class="QPushButton" name="btnRecord">
    <property name="geometry">
     <rect>
-     <x>420</x>
+     <x>520</x>
      <y>10</y>
      <width>101</width>
      <height>25</height>
