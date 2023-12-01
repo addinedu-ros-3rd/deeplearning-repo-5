@@ -10,12 +10,12 @@ from ultralytics import YOLO
 CONFIDENCE_THRESHOLD = 0.6
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+WHITE = (255, 255, 255)
 
 mycoco = open('/home/wintercamo/dev_ws/Project_ML/src/mycoco.txt', 'r')
 data = mycoco.read()
 class_list = data.split('\n')
 mycoco.close()
-print(class_list)
 
 model = YOLO('/home/wintercamo/dev_ws/Project_ML/src/runs/detect/train3/weights/best.pt')
 
@@ -37,7 +37,8 @@ class WindowClass(QMainWindow, from_class):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        
+        self.setWindowTitle("유해조수 판별 모델 및 추적모델")
+
         self.isRecStart = False
 
         self.video = cv2.VideoCapture(-1)
@@ -49,10 +50,8 @@ class WindowClass(QMainWindow, from_class):
         self.record = Camera(self)
         self.record.daemon = True
         
-        # self.pixmap2 = QPixmap(self.boxzone.width(), self.boxzone.height())
-        # self.pixmap2.fill(Qt.transparent)
-        # self.boxzone.setPixmap(self.pixmap2)
-
+        self.info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    
         self.btnOpen.clicked.connect(self.openFile)
         self.btnRecord.clicked.connect(self.clickRecord)
         self.record.update.connect(self.updateRecording)
@@ -106,9 +105,20 @@ class WindowClass(QMainWindow, from_class):
                 cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), GREEN, 2)
             else:
                 cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), RED, 2)
+            cv2.putText(self.image, class_list[label]+' '+str(round(confidence, 2)) + '%', (xmin, ymin), cv2.FONT_ITALIC, 1, WHITE, 2)
             
-            cv2.putText(self.image, class_list[label]+' '+str(round(confidence, 2)) + '%', (xmin, ymin), cv2.FONT_ITALIC, 1, (255,255,255), 2)
-
+            row = self.info_table.rowCount()
+            self.info_table.insertRow(row)
+            self.info_table.setItem(row, 0, QTableWidgetItem(class_list[label]))
+            
+            confidence = str(int(confidence*100)) + "%"
+            self.info_table.setItem(row, 1, QTableWidgetItem(confidence))
+            
+            # self.info_table.setItem(row, 2, QTableWidgetItem((str(xmin), str(ymin), str(xmax), str(ymax))))
+        #     self.info_table.setItem(row, 3, QTableWidgetItem(시작))
+            
+        # self.info_table.setItem(row, 4, QTableWidgetItem(끝))
+            
     def updateCamera(self):
         retval, self.image = self.video.read()
         if retval:
