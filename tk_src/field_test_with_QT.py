@@ -8,6 +8,8 @@ import time, datetime
 from ultralytics import YOLO
 
 CONFIDENCE_THRESHOLD = 0.6
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 
 mycoco = open('/home/wintercamo/dev_ws/Project_ML/src/mycoco.txt', 'r')
 data = mycoco.read()
@@ -44,16 +46,12 @@ class WindowClass(QMainWindow, from_class):
         self.camera.start()
         self.camera.update.connect(self.updateCamera)
 
-        self.clear_timer = QTimer(self)
-        self.clear_timer.start(300)
-        self.clear_timer.timeout.connect(self.clear_box)
-
         self.record = Camera(self)
         self.record.daemon = True
         
-        self.pixmap2 = QPixmap(self.boxzone.width(), self.boxzone.height())
-        self.pixmap2.fill(Qt.transparent)
-        self.boxzone.setPixmap(self.pixmap2)
+        # self.pixmap2 = QPixmap(self.boxzone.width(), self.boxzone.height())
+        # self.pixmap2.fill(Qt.transparent)
+        # self.boxzone.setPixmap(self.pixmap2)
 
         self.btnOpen.clicked.connect(self.openFile)
         self.btnRecord.clicked.connect(self.clickRecord)
@@ -93,45 +91,32 @@ class WindowClass(QMainWindow, from_class):
         if self.isRecStart:
             self.writer.release()        
 
-    def clear_box(self):
-        self.pixmap2 = QPixmap(self.boxzone.width(), self.boxzone.height())
-        self.pixmap2.fill(Qt.transparent)
-        self.boxzone.setPixmap(self.pixmap2)
-
-    def draw_box(self, color, xmin, ymin, xmax, ymax):
-        painter = QPainter(self.boxzone.pixmap())
-        painter.setPen(QPen(color, 5, Qt.SolidLine))
-        painter.drawRect(xmin, ymin, (xmax - xmin), (ymax-ymin))
-        painter.end()
-    
-    def target_detect(self, image):
-        detection = model(image)[0]
-
+    def detect_target(self):
+        detection = model(self.image)[0]
+        
         for data in detection.boxes.data.tolist():
             confidence = float(data[4])
 
             if confidence < CONFIDENCE_THRESHOLD:
                 continue
-
             xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])
-            # label = int(data[5])
-            label = int(data[4])
-            self.draw_box(Qt.red, xmin, ymin, xmax, ymax)
-            # self.draw_box(Qt.transparent, xmin, ymin, xmax, ymax)
-            # if label == 2:
-            #     self.draw_box(xmin, ymin, xmax, ymax)
-            # else:
-            #     print("None")
+            label = int(data[-1])
+
+            if label == 1:
+                cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), GREEN, 2)
+            else:
+                cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), RED, 2)
+            
+            cv2.putText(self.image, class_list[label]+' '+str(round(confidence, 2)) + '%', (xmin, ymin), cv2.FONT_ITALIC, 1, (255,255,255), 2)
 
     def updateCamera(self):
         retval, self.image = self.video.read()
         if retval:
-            image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)    
+            self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+            self.detect_target()
 
-            h,w,c = image.shape
-            qimage = QImage(image.data, w, h, w*c, QImage.Format_RGB888)
-
-            self.target_detect(image)
+            h,w,c = self.image.shape
+            qimage = QImage(self.image.data, w, h, w*c, QImage.Format_RGB888)
 
             self.realtime_display = self.realtime_display.fromImage(qimage)
             self.realtime_display = self.realtime_display.scaled(self.display.width(), self.display.height())
