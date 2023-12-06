@@ -41,7 +41,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="boxzone">
+   <widget class="QLabel" name="isSignal">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -50,8 +50,21 @@
       <height>340</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>22</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
@@ -118,23 +131,10 @@
 color: rgb(255, 255, 255);</string>
    </property>
    <property name="text">
-    <string>Animal Detect &amp; Track System</string>
+    <string>Animal Detect &amp; Track System </string>
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnRecord">
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>90</y>
-     <width>101</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Record Start</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
