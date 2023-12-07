@@ -45,26 +45,28 @@ class WindowClass(QMainWindow, from_class):
         self.model = YOLO('/home/wintercamo/dev_ws/Project_ML/src/runs/detect/train3/weights/best.pt')
 
         # 실시간 영상 화면
+        self.image = None
         self.video = cv2.VideoCapture(-1)
         self.camera = Camera()
         self.realtime_display = QPixmap()
         self.camera.start()
         self.camera.update.connect(self.updateCamera)
+        
+        self.record = Camera(self)
+        self.recordingStart()
 
         # 객체 검출 정보
+        self.previous_state = None
+        self.current_status = None
+        self.fisrtEncount = False
         self.info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.isdetect = False
+        self.row = self.info_table.rowCount()
         self.detect_end = None
-        self.sequence = []
-
-        self.isRecStart = False
-        self.record = Camera(self)
-        self.record.daemon = True
         self.record_string = False
+        
         
     
         self.btnOpen.clicked.connect(self.openFile)
-        self.btnRecord.clicked.connect(self.clickRecord)
         self.record.update.connect(self.updateRecording)
 
     def detect_target(self):
@@ -73,10 +75,7 @@ class WindowClass(QMainWindow, from_class):
         for data in detection.boxes.data.tolist():
             confidence = float(data[4])
 
-            if confidence < CONFIDENCE_THRESHOLD:
-                continue
-
-            else:
+            if confidence >= CONFIDENCE_THRESHOLD:
                 xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])
                 label = int(data[-1])
 
@@ -87,76 +86,28 @@ class WindowClass(QMainWindow, from_class):
 
                 cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), box_color, 2)
                 cv2.putText(self.image, class_list[label]+' '+str(round(confidence, 2)) + '%', (xmin, ymin), cv2.FONT_ITALIC, 1, WHITE, 2)
-        
-        try:
-            self.isSignal.setText("")
-            self.sequence.append(label)
-            self.sequence = self.sequence[-3:]
-        except:
-            if len(self.sequence) != 0:
-                self.sequence.pop(-1)
-        try:
-            if self.sequence[0] == self.sequence[-1]:
-                self.isdetect = True
-                self.recordingStart()
-        except:
-            self.isdetect = False
-            self.isSignal.setText("No Target")
-            self.isSignal.setStyleSheet("color: white")
-        # if label is not None:
-        #     print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbb")
-        # else:
-        #     print("--------------")
-                #     self.record_string = True
-                #     self.recordingStart()
-                # else:
-                #     self.record_string = False
-                #     self.recordingStop()
-   
-    def updateCamera(self):
-        retval, self.image = self.video.read()
-        if retval:
-            self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-            self.detect_target()
+                self.current_status = class_list[label]
 
-            h,w,c = self.image.shape
-            qimage = QImage(self.image.data, w, h, w*c, QImage.Format_RGB888)
+                if self.current_status == self.previous_state and self.fisrtEncount == False:
+                    self.fisrtEncount = ~self.fisrtEncount
+                    self.row = self.info_table.rowCount()
+                    self.info_table.insertRow(self.row)
+                    self.info_table.setItem(self.row, 0, QTableWidgetItem(class_list[label]))
+                    timing = datetime.datetime.now().strftime('%y%m%d_%H:%M:%S')
+                    self.info_table.setItem(self.row, 1, QTableWidgetItem(str(timing)))
 
-            self.realtime_display = self.realtime_display.fromImage(qimage)
-            self.realtime_display = self.realtime_display.scaled(self.display.width(), self.display.height())
+                elif self.current_status != self.previous_state:
+                    self.fisrtEncount = ~self.fisrtEncount
+                    timing = datetime.datetime.now().strftime('%y/%m/%d_%H:%M:%S')
+                    self.info_table.setItem(self.row, 2, QTableWidgetItem(timing))
             
-            self.display.setPixmap(self.realtime_display)
+            else:
+                self.current_status = class_list[-1]
 
-    def updateRecording(self):
-        self.writer.write(self.image)
-    
-    def clickRecord(self):
-        if self.isRecStart == False:
-            self.btnRecord.setText("Rec Stop")
-            self.isRecStart = True
-
-            self.recordingStart()
-        else:
-            self.btnRecord.setText("Rec Start")
-            self.isRecStart = False
-
-            self.recordingStop()
+        self.previous_state = self.current_status
+        print(self.current_status)
 
     def recordingStart(self):
-
-        if self.record_string == True:
-            row = self.info_table.rowCount()
-            self.info_table.insertRow(row)
-            self.info_table.setItem(row, 0, QTableWidgetItem(class_list[self.sequence[1]]))
-            confidence = str(int(confidence*100)) + "%"
-            self.info_table.setItem(row, 1, QTableWidgetItem(confidence))
-            self.record_string = False
-            
-            # self.info_table.setItem(row, 2, QTableWidgetItem((str(xmin), str(ymin), str(xmax), str(ymax))))
-        #     self.info_table.setItem(row, 3, QTableWidgetItem(시작))
-            
-        # self.info_table.setItem(row, 4, QTableWidgetItem(끝))
-        self.record.running = True
         self.record.start()
         
         self.now = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -167,15 +118,6 @@ class WindowClass(QMainWindow, from_class):
         h = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
         self.writer = cv2.VideoWriter(filename, self.fourcc, 20.0, (w, h))
-    
-    def recordingStop(self):
-        self.record.running = False
-    
-        if self.isRecStart:
-            self.writer.release()        
-
-
-    
 
     def openFile(self):
         file = QFileDialog.getOpenFileName(filter='Image (*.*)')
@@ -186,8 +128,32 @@ class WindowClass(QMainWindow, from_class):
         qimage = QImage(image.data, w, h, w*c, QImage.Format_RGB888)
         self.pixmap = self.pixmap.fromImage(qimage)
         self.pixmap = self.pixmap.scaled(self.display.width(), self.display.height())
-
         self.display.setPixmap(self.pixmap)
+
+    def updateCamera(self):
+        retval, self.image = self.video.read()
+        if retval:
+            self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+            self.now = datetime.datetime.now().strftime('%y/%m/%d _ %H:%M:%S')
+            cv2.putText(self.image, self.now, (30, 30), cv2.FONT_ITALIC, 1, WHITE, 2)
+            self.detect_target()
+
+            h,w,c = self.image.shape
+            qimage = QImage(self.image.data, w, h, w*c, QImage.Format_RGB888)
+
+            self.realtime_display = self.realtime_display.fromImage(qimage)
+            self.realtime_display = self.realtime_display.scaled(self.display.width(), self.display.height())
+            
+            self.display.setPixmap(self.realtime_display)
+
+    def closeEvent(self, event):
+        self.recordingStop()
+    
+    def updateRecording(self):
+        self.writer.write(self.image)
+    
+    def recordingStop(self):
+        self.writer.release()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
