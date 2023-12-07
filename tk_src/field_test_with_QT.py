@@ -9,7 +9,7 @@ import time, datetime
 from ultralytics import YOLO
 
 # 경계박스관련 변수
-CONFIDENCE_THRESHOLD = 0.6
+CONFIDENCE_THRESHOLD = 0.5
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
@@ -53,10 +53,9 @@ class WindowClass(QMainWindow, from_class):
         self.camera.update.connect(self.updateCamera)
         
         self.record = Camera(self)
-        self.recordingStart()
 
         # 객체 검출 정보
-        self.previous_state = None
+        self.previous_status = None
         self.current_status = None
         self.fisrtEncount = False
         self.info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -72,40 +71,53 @@ class WindowClass(QMainWindow, from_class):
     def detect_target(self):
         detection = self.model(self.image)[0]
         
-        for data in detection.boxes.data.tolist():
-            confidence = float(data[4])
+        if len(detection.boxes) == 0:
+            self.current_status = None
 
-            if confidence >= CONFIDENCE_THRESHOLD:
-                xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])
-                label = int(data[-1])
+        else:
+            for data in detection.boxes.data.tolist():
+                confidence = float(data[4])
 
-                if label == 1:
-                    box_color = GREEN
-                else:
-                    box_color = RED
+                if confidence >= CONFIDENCE_THRESHOLD:
+                    xmin, ymin, xmax, ymax = int(data[0]), int(data[1]), int(data[2]), int(data[3])
+                    label = int(data[-1])
 
-                cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), box_color, 2)
-                cv2.putText(self.image, class_list[label]+' '+str(round(confidence, 2)) + '%', (xmin, ymin), cv2.FONT_ITALIC, 1, WHITE, 2)
-                self.current_status = class_list[label]
+                    if label == 1: box_color = GREEN
+                    else: box_color = RED
 
-                if self.current_status == self.previous_state and self.fisrtEncount == False:
-                    self.fisrtEncount = ~self.fisrtEncount
-                    self.row = self.info_table.rowCount()
-                    self.info_table.insertRow(self.row)
-                    self.info_table.setItem(self.row, 0, QTableWidgetItem(class_list[label]))
-                    timing = datetime.datetime.now().strftime('%y%m%d_%H:%M:%S')
-                    self.info_table.setItem(self.row, 1, QTableWidgetItem(str(timing)))
-
-                elif self.current_status != self.previous_state:
-                    self.fisrtEncount = ~self.fisrtEncount
-                    timing = datetime.datetime.now().strftime('%y/%m/%d_%H:%M:%S')
-                    self.info_table.setItem(self.row, 2, QTableWidgetItem(timing))
+                    cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), box_color, 2)
+                    cv2.putText(self.image, class_list[label]+' '+str(round(confidence, 2)) + '%', (xmin, ymin), cv2.FONT_ITALIC, 1, WHITE, 2)
+                    self.current_status = class_list[label]
             
-            else:
-                self.current_status = class_list[-1]
+         
 
-        self.previous_state = self.current_status
-        print(self.current_status)
+        if self.current_status in class_list:
+            if self.previous_status is None or self.previous_status != self.current_status:
+                self.start_db_record(label)
+
+        if self.previous_status in class_list and self.current_status is None:
+            self.end_db_record()
+        
+        elif self.previous_status and self.previous_status != self.current_status:
+            self.end_db_record()
+            
+
+        print(self.previous_status, self.current_status)
+        self.previous_status = self.current_status
+    
+    def start_db_record(self,label):
+        self.recordingStart()
+        self.row = self.info_table.rowCount()
+        self.info_table.insertRow(self.row)
+        self.info_table.setItem(self.row, 0, QTableWidgetItem(class_list[label]))
+        timing = datetime.datetime.now().strftime('%y%m%d_%H:%M:%S')
+        self.info_table.setItem(self.row, 1, QTableWidgetItem(str(timing)))
+
+    def end_db_record(self):
+        self.fisrtEncount = False
+        timing = datetime.datetime.now().strftime('%y/%m/%d_%H:%M:%S')
+        self.info_table.setItem(self.row, 2, QTableWidgetItem(timing))
+        self.recordingStop()
 
     def recordingStart(self):
         self.record.start()
@@ -146,8 +158,8 @@ class WindowClass(QMainWindow, from_class):
             
             self.display.setPixmap(self.realtime_display)
 
-    def closeEvent(self, event):
-        self.recordingStop()
+    # def closeEvent(self, event):  # gui를 닫는 즉시 실행되는 함수
+    #     self.recordingStop()
     
     def updateRecording(self):
         self.writer.write(self.image)
