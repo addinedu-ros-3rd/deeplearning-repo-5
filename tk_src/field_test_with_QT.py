@@ -32,7 +32,7 @@ class Camera(QThread):
             self.update.emit()
             time.sleep(0.1)
 
-# 식별 모델 정의
+# UI 소환
 from_class = uic.loadUiType("/home/wintercamo/dev_ws/Project_ML/src/myui.ui")[0]
 
 class WindowClass(QMainWindow, from_class):
@@ -61,12 +61,6 @@ class WindowClass(QMainWindow, from_class):
         self.info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.row = self.info_table.rowCount()
         self.detect_end = None
-        self.record_string = False
-        
-        
-    
-        self.btnOpen.clicked.connect(self.openFile)
-        self.record.update.connect(self.updateRecording)
 
     def detect_target(self):
         detection = self.model(self.image)[0]
@@ -100,11 +94,7 @@ class WindowClass(QMainWindow, from_class):
         
         elif self.previous_status and self.previous_status != self.current_status:
             self.end_db_record()
-            
-
-        print(self.previous_status, self.current_status)
-        self.previous_status = self.current_status
-    
+                
     def start_db_record(self,label):
         self.recordingStart()
         self.row = self.info_table.rowCount()
@@ -172,4 +162,3 @@ if __name__ == "__main__":
     myWindows = WindowClass()
     myWindows.show()
     sys.exit(app.exec_())
-    
