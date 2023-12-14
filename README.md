@@ -10,6 +10,10 @@
 ### 프로젝트 수행 방향
 방향 및 일정 ( 전체 일정 4주)
 
+![멧돼지](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/ef172838-b472-4c3f-b793-b0aeb36b2aa6)
+![image](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/66404ce3-e573-463d-a453-2d199418e26e)
+
+
 1. 딥러닝 ( 1주차  ~ 3 주차) 
    1. 개체 인식
    2. 개체 추적
