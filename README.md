@@ -7,10 +7,11 @@
 ### 프로젝트 주제 : 딥러닝 기반의 유해조수 판별 및 추적모델 구축
 ### 프로젝트 목적 : 유해조수 판별 및 추적 모델 구축
 ### 
+### 객체인식 및 추적
 ![멧돼지](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/ef172838-b472-4c3f-b793-b0aeb36b2aa6)
-#### 객체인식 및 추적
+### GUI
 ![image](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/66404ce3-e573-463d-a453-2d199418e26e)
-#### GUI
+
 
 ### 프로젝트 수행 방향
 방향 및 일정 ( 전체 일정 4주)
