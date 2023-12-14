@@ -1,0 +1,104 @@
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5 import uic
+
+
+# RDS 연결
+import mysql.connector
+from datetime import datetime
+
+db = mysql.connector.connect(
+    host = "localhost",
+    port = 3306,
+    user = "hong",
+    password = "unique1117!"
+)
+
+# 데이터베이스 생성
+my_db_name = 'Project_ML'  # create하려는 데이터베이스 이름
+sql_query = 'CREATE DATABASE ' + my_db_name
+
+my_cursor = db.cursor()  # 커서 생성
+
+# create하려는 데이터베이스가 이미 있는지 파악.
+my_cursor.execute(f"SHOW DATABASES LIKE '{my_db_name}'")  
+
+# 없으면 생성.
+if my_cursor.fetchone() is None:
+    my_cursor.execute(sql_query)
+    db.commit()
+    print(f"데이터베이스 '{my_db_name}'를 생성했습니다.")
+
+# 있으면 스킵.
+else:  
+    print(f"데이터베이스 '{my_db_name}'가 이미 존재합니다. 생성을 스킵합니다.")
+
+my_cursor.execute(f"USE {my_db_name}")  # 해당 데이터베이스로 들어간다.
+
+# 테이블 생성
+my_table_name  = "Table_" +  datetime.now().strftime('%y%m%d')
+sql_query = f'''CREATE TABLE {my_table_name} (
+                Class VARCHAR(255) NOT NULL,
+                Detected_time TIME,
+                Disappeared_time TIME
+            )'''
+
+# 만드려는 테이블명이 중복인지 아닌지 확인
+my_cursor.execute(f"SHOW TABLES LIKE %s", (my_table_name,))  
+
+if my_cursor.fetchone() is None:
+    my_cursor.execute(sql_query)
+    db.commit()
+    print(f"테이블 '{my_table_name}'를 생성했습니다.")
+else:
+    print(f"테이블 '{my_table_name}'가 이미 존재합니다. 생성을 스킵합니다.")
+
+# INSERT 쿼리 불러오기
+sql_query = f'''INSERT INTO {my_table_name} (Class, Detected_time) VALUES (%s, %s)'''
+sql_query2 = f'''UPDATE {my_table_name} SET Disappeared_time = %s WHERE Class = %s AND Detected_time = %s'''
+
+# GUI 클래스에 추가할 파라미터 및 Qt 테이블 관련 메소드
+from_class = uic.loadUiType("myui.ui")[0]
+
+class WindowClass(QMainWindow, from_class):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.setWindowTitle("유해조수 판별 모델 및 추적모델")
+
+        # 객체 검출 정보
+        self.record = Camera(self)
+        self.previous_status = None
+        self.current_status = None
+        self.info_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.row = self.info_table.rowCount()
+        
+        self.detect_class = None
+        self.start_timing = None
+        self.end_timing = None
+
+# 객체 검출 시작/종료 시에 GUI에 표시하거나 
+def start_db_record(self):
+    self.recordingStart()
+    self.row = self.info_table.rowCount()
+    self.info_table.insertRow(self.row)
+    self.info_table.setItem(self.row, 0, QTableWidgetItem(class_list[self.detect_class]))
+    self.start_timing = datetime.datetime.now().strftime('%H:%M:%S')
+    self.info_table.setItem(self.row, 1, QTableWidgetItem(str(self.start_timing)))
+
+    my_cursor.execute(sql_query, (class_list[self.detect_class], self.start_timing))
+    db.commit()
+
+def end_db_record(self):
+    self.end_timing = datetime.datetime.now().strftime('%H:%M:%S')
+    self.info_table.setItem(self.row, 2, QTableWidgetItem(str(self.end_timing)))
+    
+    my_cursor.execute(sql_query2, (self.end_timing, class_list[self.detect_class], self.start_timing))
+    db.commit()
+
+    self.recordingStop()
+
+# gui를 닫는 즉시 실행되는 함수
+def closeEvent(self, event):
+    db.close()
