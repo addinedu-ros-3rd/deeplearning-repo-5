@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1223</width>
+    <width>1214</width>
     <height>876</height>
    </rect>
   </property>
@@ -91,7 +91,7 @@ color: rgb(255, 255, 255);</string>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>10</x>
      <y>500</y>
      <width>111</width>
      <height>17</height>
@@ -241,7 +241,28 @@ color: rgb(255, 255, 255);</string>
    </column>
    <column>
     <property name="text">
-     <string>파일경로</string>
+     <string>사진 링크</string>
+    </property>
+    <property name="background">
+     <color>
+      <red>26</red>
+      <green>95</green>
+      <blue>180</blue>
+     </color>
+    </property>
+    <property name="foreground">
+     <brush brushstyle="SolidPattern">
+      <color alpha="255">
+       <red>255</red>
+       <green>255</green>
+       <blue>255</blue>
+      </color>
+     </brush>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>영상 링크</string>
     </property>
     <property name="background">
      <color>
@@ -304,6 +325,19 @@ color: rgb(255, 255, 255);</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="BtnOpen">
+   <property name="geometry">
+    <rect>
+     <x>1120</x>
+     <y>90</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open File</string>
    </property>
   </widget>
  </widget>
