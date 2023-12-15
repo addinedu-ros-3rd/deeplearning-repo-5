@@ -146,8 +146,8 @@ class WindowClass(QMainWindow, from_class):
 
         # 실시간 영상 화면
         self.image = None
-        # self.video = cv2.VideoCapture('/home/wintercamo/dev_ws/Project_ML/data/samples/wild_boars.mp4')  # 웹캠 or 로컬 영상 파일
-        self.video = cv2.VideoCapture(2)
+        self.video = cv2.VideoCapture('/home/wintercamo/dev_ws/Project_ML/data/samples/Bear.mp4')  # 웹캠 or 로컬 영상 파일
+        # self.video = cv2.VideoCapture(0)
         self.camera = Camera()
         self.realtime_display = QPixmap()
         self.camera.start()
@@ -252,15 +252,14 @@ class WindowClass(QMainWindow, from_class):
             label = int(data[-1])
             
             cv2.rectangle(self.image, (xmin, ymin), (xmax, ymax), RED, 2)
-            cv2.putText(self.image, 'wild_boar' + ' '+str(round(confidence, 2)), (xmin, ymin), cv2.FONT_ITALIC, 1, WHITE, 2)
+            cv2.putText(self.image, class_list[label] + ' '+str(round(confidence, 2)), (xmin, ymin), cv2.FONT_ITALIC, 1, WHITE, 2)
             
-            self.current_second = int(self.now[-2:])
+            self.current_second = time.time()
 
             if (self.current_second - self.capture_flag) >= 2:
                 self.captureImage()
-                self.record_on_DB('wild_boar', xmin, ymin, xmax, ymax)
+                self.record_on_DB(class_list[label], xmin, ymin, xmax, ymax)
                 self.capture_flag = self.current_second
-            print(self.capture_flag, self.current_second)
 
     def updateCamera(self):
         retval, self.image = self.video.read()
@@ -282,13 +281,6 @@ class WindowClass(QMainWindow, from_class):
     def closeEvent(self, event):  # gui를 닫는 즉시 실행되는 함수
         if self.record_flag:
             self.recordingStop()
-        
-        # for _ in range(len(self.upload_stack_video)):
-
-            
-        # self.upload_stack_images
-        # upload_file_to_s3(self.image_full_path_local, 'prj-wildlife', self.image_full_path_s3)
-        # upload_file_to_s3(self.video_full_path_local, 'prj-wildlife', self.video_full_path_s3)
         aws_DB.close()
 
 if __name__ == "__main__":
