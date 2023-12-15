@@ -37,14 +37,20 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
 |    |  |
 |--------|------|
 |  |   데이터셋 변환 및 모델학습   |
-|  |   GUI   |
-|  |   객체인식 및 추적   |
+|  |   개발자  GUI  |
 |  |   ![GUI 이미지](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/66404ce3-e573-463d-a453-2d199418e26e)   |
+|  | 사용자 GUI   |
+|  |<img width="603" alt="KakaoTalk_Photo_2023-12-15-10-41-42" src="https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/1d986c97-f77e-478a-8929-c2e1387196fb">|  
 
+|    |  |
+|----------------|---------------|
+|   ![KakaoTalk_Video_2023-12-15-10-56-23 2](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/e22c7dd1-bdc4-4bd1-bcbb-5e937e14fd90) | ![KakaoTalk_Video_2023-12-15-10-56-23](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/c82cff4b-c50c-486d-a356-474072d838c0) |
 
 
 ## 프로젝트 수행 방향
 ### 1. 딥러닝 (1주차 ~ 3주차)
+   - 데이터 수집
+   - 데이터 라벨링
    - 개체 인식
    - 개체 추적
 
@@ -66,6 +72,7 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
    - 데이터 준비: 훈련 데이터 수집 및 라벨링
    - 모델 훈련: 수집한 데이터로 모델 훈련
 
+
 ### 2. 개체 추적(Object Tracking)
    - 추적 알고리즘 선택: Kalman 필터, Mean-shift, CAMShift 등
    - 알고리즘 통합: 인식된 개체 정보 추적
@@ -82,6 +89,7 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
  |
 |   |   |   |
 |   |   |   |
+![image](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/1d4e6bfc-6785-4bac-88bb-f0d2529fc642)
 
 ### 3. 카메라 제어(Camera Control)
    - 서보 모터 제어: 카메라 각도 조절
