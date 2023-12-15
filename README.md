@@ -78,7 +78,7 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
    - 알고리즘 통합: 인식된 개체 정보 추적
 
 
-| rain_batch |  |  |
+| train_batch |  |  |
 |--------|------|------|
 | ![train_batch0](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/83ff5be5-7610-4b03-9e7d-9792d1ff160c) | ![train_batch1](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/c8a8956c-8fd3-4860-9aa6-08008183189c) | ![train_batch2](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/1c03fea3-c96d-4f21-bc32-a90576d23d70) |
 | ![train_batch145880](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/1d560c68-7118-4ca3-b550-fbd90cb43b88) | ![train_batch145881](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/ddbea988-73bd-4d30-b47a-fbe57b480c6b) | ![train_batch145882](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/ca0ee812-9c6e-4edb-a4af-f9480345a177) |
@@ -98,6 +98,11 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
 ### 4. 시스템 통합 및 최적화
    - 성능 평가: 시스템 정확도 및 반응 속도 평가
    - 최적화: 모델 및 알고리즘 수정 및 최적화
+
+|   |   |   |
+|--------|------|------|
+|   |  ![confusion_matrix_normalized](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/5cdf6a7c-bc07-495c-a23b-95d6e643b8bb) |  ![confusion_matrix](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/e0623278-c60d-46eb-9588-9d985a11275e) |
+
 
 ### 5. 실제 환경 테스트
    - 테스트 실행: 다양한 환경에서 시험
