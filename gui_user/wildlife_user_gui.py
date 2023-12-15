@@ -1,3 +1,12 @@
+# 필요 라이브러리
+# !pip install boto3 pyqt5 pymysql
+
+# 필요 인증파일
+# ~/.aws/credentials
+
+# AWS S3 클라이언트 설정
+# s3_client = boto3.client('s3', region_name='ap-northeast-2')
+# bucket_name = 'prj-wildlife'
 
 import sys
 import pymysql
@@ -181,8 +190,6 @@ class WildlifeUserGUI(QMainWindow):
 
         self.lastImage = ""
         self.lastVideo = ""
-        
-        self.connectDB()
 
         # 타이머 초기화 및 설정
         self.timer = QTimer(self)
@@ -191,7 +198,7 @@ class WildlifeUserGUI(QMainWindow):
         
         self.timer2 = QTimer(self)
         self.timer2.timeout.connect(self.updateList)  # 타이머 시그널을 슬롯에 연결
-        self.timer2.start(10000)  # 1초(1000밀리초)마다 타이머 실행
+        self.timer2.start(11000)  # 1초(1000밀리초)마다 타이머 실행
         
         self.updateList()
 
@@ -202,8 +209,9 @@ class WildlifeUserGUI(QMainWindow):
         # 선택된 아이템들이 있다면
         if selected_items:
             selected_item = selected_items[0]  # 첫 번째 선택된 아이템
-            print(selected_item.text())        # 아이템의 텍스트 출력
+            # print(selected_item.text())        # 아이템의 텍스트 출력
             try:
+                self.connectDB()
                 with self.connection.cursor() as cursor:
                     # 쿼리 실행
                     query = f"""SELECT MIN(time) as earliest_time, link_video
@@ -212,10 +220,11 @@ class WildlifeUserGUI(QMainWindow):
                             AND time < CONCAT(DATE_FORMAT('{selected_item.text()}' + INTERVAL 10 MINUTE, '%Y-%m-%d %H:'), LPAD(FLOOR(MINUTE('{selected_item.text()}' + INTERVAL 10 MINUTE) / 10) * 10, 2, '0'), ':00')
                             GROUP BY link_video
                             ORDER BY earliest_time;"""
-                    print(query)
+                    # print(query)
                     cursor.execute(query)
                     list_data = cursor.fetchall()
                     logging.debug(f"video list data: {list_data}")
+                self.disconnectDB()
             except Exception as e:
                 logging.error(f"video list query failed: {e}")
 
@@ -228,6 +237,7 @@ class WildlifeUserGUI(QMainWindow):
 
     def updateList(self):
         try:
+            self.connectDB()
             with self.connection.cursor() as cursor:
                 # 쿼리 실행
                 query = """SELECT 
@@ -242,7 +252,8 @@ class WildlifeUserGUI(QMainWindow):
                                 earliest_time DESC;"""
                 cursor.execute(query)
                 list_data = cursor.fetchall()
-                logging.debug(f"list data: {list_data}")
+                # logging.debug(f"list data: {list_data}")
+            self.disconnectDB()
         except Exception as e:
             logging.error(f"updateList query failed: {e}")
         
@@ -250,60 +261,67 @@ class WildlifeUserGUI(QMainWindow):
         if list_data != None:
             self.playlist.clear()
             for row in list_data:
-                print(row)
+                # print(row)
                 self.playlist.addItem(row[0].strftime("%Y-%m-%d %H:%M:%S"))
 
 
     def fetchLatestData(self):
         # 데이터베이스에서 최신 데이터를 가져오는 메서드
         try:
+            self.connectDB()
             with self.connection.cursor() as cursor:
                 # 쿼리 실행
-                query = """SELECT link_picture, link_video
-                        FROM detect_log
-                        WHERE CONVERT_TZ(time, 'Asia/Seoul', 'UTC') > NOW() - INTERVAL 600 MINUTE
-                        ORDER BY time DESC
-                        LIMIT 1;"""
+                query = """SELECT 
+                            MIN(time) as earliest_time,
+                            link_picture,
+                            link_video
+                            FROM detect_log
+                            WHERE CONVERT_TZ(time, 'Asia/Seoul', 'UTC') > NOW() - INTERVAL 10 MINUTE
+                            GROUP BY link_video
+                            ORDER BY earliest_time DESC
+                            LIMIT 2;"""
                 cursor.execute(query)
 
                 # 결과 처리
-                latest_data = cursor.fetchone()
-                logging.debug(f"Latest data: {latest_data}")
-                
-                if latest_data == None:
-                    self.recentImage.setPixmap(QPixmap())
-                    self.recentMediaPlayer.stop()
-                    self.recentMediaPlayer.setMedia(QMediaContent())
-                else:
-                    if self.lastImage != latest_data[0]:
-                        self.lastImage = latest_data[0]
-                        # S3 버킷에서 파일의 임시 URL 생성
-                        url = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': self.lastImage}, ExpiresIn=3600)
-                        print("image: ", url)
-                        response = requests.get(url)
-                        if response.status_code == 200:
-                            pixmap = QPixmap()
-                            success = pixmap.loadFromData(response.content)
-                            if success:
-                                scaled_pixmap = pixmap.scaled(self.recentImage.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)  # recentImage 크기에 맞게 조정
-                                self.recentImage.setPixmap(scaled_pixmap)
-                                self.recentImage.setScaledContents(True)  # 이미지 크기 자동 조절  
-                            else:
-                                print("Pixmap 로딩 실패")
-                        else:
-                            print("URL 접근 실패:", response.status_code)
-                        
-                    if self.lastVideo != latest_data[1]:
-                        self.lastVideo = latest_data[1]
-                        # S3 버킷에서 파일의 임시 URL 생성
-                        url = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': self.lastVideo}, ExpiresIn=3600)
-                        print("video: ", url)
-                        # 동영상 파일 재생
-                        self.recentMediaPlayer.setMedia(QMediaContent(QUrl(url)))
-                        self.recentMediaPlayer.play()
-                    
+                latest_data = cursor.fetchall()
+                # logging.debug(f"Latest data: {latest_data}")
+            self.disconnectDB()
         except Exception as e:
             logging.error(f"fetchLatestData query failed: {e}")
+                
+        if len(latest_data) < 2:
+            self.recentImage.setPixmap(QPixmap())
+            self.recentMediaPlayer.stop()
+            self.recentMediaPlayer.setMedia(QMediaContent())
+        else:
+            print(latest_data[0])
+            print(latest_data[1])
+            if self.lastImage != latest_data[0][1]:
+                self.lastImage = latest_data[0][1]
+                # S3 버킷에서 파일의 임시 URL 생성
+                url = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': self.lastImage}, ExpiresIn=3600)
+                print("image: ", url)
+                response = requests.get(url)
+                if response.status_code == 200:
+                    pixmap = QPixmap()
+                    success = pixmap.loadFromData(response.content)
+                    if success:
+                        scaled_pixmap = pixmap.scaled(self.recentImage.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)  # recentImage 크기에 맞게 조정
+                        self.recentImage.setPixmap(scaled_pixmap)
+                        self.recentImage.setScaledContents(True)  # 이미지 크기 자동 조절  
+                    else:
+                        print("Pixmap 로딩 실패")
+                else:
+                    print("URL 접근 실패:", response.status_code)
+                
+            if self.lastVideo != latest_data[1][2]:
+                self.lastVideo = latest_data[1][2]
+                # S3 버킷에서 파일의 임시 URL 생성
+                url = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': self.lastVideo}, ExpiresIn=3600)
+                print("video: ", url)
+                # 동영상 파일 재생
+                self.recentMediaPlayer.setMedia(QMediaContent(QUrl(url)))
+                self.recentMediaPlayer.play()
 
     def connectDB(self):
         # 데이터베이스 연결 설정
