@@ -105,9 +105,15 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
 
 ## 프로젝트 수행 도구
 - Git Hub
-- Python3
-- 라즈베리파이
-- 팬틸트 카메라
+- YOLO v8
+- AWS
+- mySQL(RDS)
+- 웹캠
 
+## 공유하고 싶은 팁
 
+- colab 보다 노트북이 2.5배 빨랐다 !
+- 적합한 라벨링 기준 !
+![image](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/bec2004f-e80b-4ef0-b52c-94cbaddf0891)
+- 
 
