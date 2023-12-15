@@ -22,6 +22,8 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
 ## 프로젝트 목적
 유해조수 판별 및 추적 모델 구축
 
+## 시스템 구성도
+![system_architecture](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/1a61b83c-ea2a-42cd-af16-a938abc7ce6c)
 
 ## 객체인식 및 추적
 |    |  |
