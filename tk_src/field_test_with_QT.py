@@ -11,6 +11,7 @@ from ultralytics import YOLO
 import mysql.connector
 import boto3
 from botocore.exceptions import NoCredentialsError
+import pygame
 
 # S3 클라이언트 초기화
 def initialize_s3_client():
@@ -135,6 +136,30 @@ class Camera(QThread):
             self.update.emit()
             time.sleep(0.1)
 
+# mp3 플레이어 클래스
+class Mp3Player(QThread):
+    def __init__(self, file_path):
+        super().__init__()
+        self.file_path = file_path
+
+    def run(self):
+        # Pygame 초기화
+        pygame.init()
+        pygame.mixer.init()
+
+        # MP3 파일 로드 및 재생
+        pygame.mixer.music.load(self.file_path)
+        pygame.mixer.music.play()
+
+        # 음악 재생 상태 체크
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+
+    def stop(self):
+        # 음악 종료
+        pygame.mixer.music.stop()
+        self.terminate()
+
 # UI 불러오기
 from_class = uic.loadUiType("/home/wintercamo/dev_ws/Project_ML/src/myui.ui")[0]
 
@@ -146,8 +171,8 @@ class WindowClass(QMainWindow, from_class):
 
         # 실시간 영상 화면
         self.image = None
-        self.video = cv2.VideoCapture('/home/wintercamo/dev_ws/Project_ML/data/samples/Bear.mp4')  # 웹캠 or 로컬 영상 파일
-        # self.video = cv2.VideoCapture(0)
+        # self.video = cv2.VideoCapture('/home/wintercamo/dev_ws/Project_ML/data/samples/Bear.mp4')  # 웹캠 or 로컬 영상 파일
+        self.video = cv2.VideoCapture(0)
         self.camera = Camera()
         self.realtime_display = QPixmap()
         self.camera.start()
@@ -164,6 +189,10 @@ class WindowClass(QMainWindow, from_class):
         self.record_stop_timer.timeout.connect(self.recordingStop)
         
         self.capture_flag = 0
+
+        self.mp3Player = Mp3Player("/home/wintercamo/dev_ws/Project_ML/data/samples/EAS.mp3")
+
+        
 #     def openFile(self):
 #         file = QFileDialog.getOpenFileName(filter='Image (*.*)')
 
@@ -213,13 +242,14 @@ class WindowClass(QMainWindow, from_class):
     def recordingStop(self):
         if self.record_flag == True:
             self.record_flag = False
+            self.mp3Player.stop()
             self.writer.release()
             upload_file_to_s3(self.video_full_path_local, 'prj-wildlife', self.video_full_path_s3)
             # self.upload_stack_video.append((self.video_full_path_local, self.video_full_path_s3))
 
     def recordingStart(self):
         self.record.start()
-
+        self.mp3Player.start()
         timing = self.now
         filename = timing.replace(' ', '').replace('/','').replace(':','').replace('_','')
         link = "videos/" + filename[:6]
