@@ -1,5 +1,5 @@
 # 필요 라이브러리
-# !pip install boto3 pyqt5 pymysql
+# !pip install boto3 pyqt5 pymysql requests 
 
 # 필요 인증파일
 # ~/.aws/credentials
