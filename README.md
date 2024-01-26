@@ -1,37 +1,46 @@
-# deeplearning-repo-5
+# 딥러닝 기반의 유해조수 판별 및 추적모델
+## 개요
+![객체인식 및 추적](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/ef172838-b472-4c3f-b793-b0aeb36b2aa6)
+![KakaoTalk_Video_2023-12-15-10-56-23](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/c82cff4b-c50c-486d-a356-474072d838c0)
 
-## 과정명
-ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
-
-## 팀명
-| 팀명   | 헌터 x 헌태 |
-|--------|------|
-|  |   ![DALL·E 2023-12-14 17 46 51 - Modify the existing logo of a project focused on protecting crops from pests such as wild boars and deer by adding stylish sunglasses to both the wild](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/669b227d-648e-48bb-bbbc-670394ee2771)   |
++ 딥러닝 모델을 사용하여 실시간으로 유해조수를 판별하여 타겟팅을 하는 팬틸트 카메라 어플리케이션과 디바이스.
++ 유해조수 판별 로그와 영상/사진을 클라우드에 업로드하고, 이를 조회할 수 있는 관리자 프로그램.
 
 ## 팀원
-| 이름   | 역할 |
+|이름|역할|
 |--------|------|
-| 이무봉 |   데이터셋 변환 및 모델학습   |
-| 박민재 |   사용자 GUI   |
-| 김태헌 |   객체인식 및 추적   |
-| 홍석진 |   데이터베이스 설계   |
+|팀장 박민재|사용자 GUI|
+|이무봉|데이터셋 변환 및 모델학습|
+|김태헌|팬틸트 카메라용 객체인식 및 추적 어플리케이션 개발|
+|홍석진|데이터베이스 설계|
 
-## 프로젝트 주제
-딥러닝 기반의 유해조수 판별 및 추적모델 구축
+## 프로젝트 기간
+2023.11.16 ~ 2023.12.15 (중 10일)
 
-## 프로젝트 목적
-유해조수 판별 및 추적 모델 구축
+## 기술스택
+|   |   |
+|---|---|
+|개발환경|<img src="https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white">|
+|언어|<img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white">|
+|DB, UI 등|<img src="https://img.shields.io/badge/amazonrds-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white"> <img src="https://img.shields.io/badge/amazons3-569A31?style=for-the-badge&logo=amazons3&logoColor=white"> <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> <img src="https://img.shields.io/badge/qt-41CD52?style=for-the-badge&logo=qt&logoColor=white">, OpenCV|
+|AI|Pytorch|
+|개발환경|VScode, Colab|
+|형상관리 및 협업|Github, Slack|
 
 ## 시스템 구성도
 ![system_architecture](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/1a61b83c-ea2a-42cd-af16-a938abc7ce6c)
 
+## 기능 리스트
++ 팬틸트 카메라 어플리케이션 및 디바이스
+  + YOLOv8 모델과 openCV로 유해조수 탐지
+  + 로컬과 AWS에 인식한 객체 로그 데이터와 녹화 영상을 업로드
 ## 객체인식 및 추적
 |    |  |
 |--------|------|
 |  |   데이터셋 변환 및 모델학습   |
 |  |      |
 |  |   객체인식 및 추적   |
-|  |   ![객체인식 및 추적](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/ef172838-b472-4c3f-b793-b0aeb36b2aa6)   |
+|  |     |
 
 ## GUI
 |    |  |
@@ -44,7 +53,7 @@ ROS (SLAM/RAIDA) 개발 역량 강화를 위한 AI 자율주행 로봇 과정
 
 |    |  |
 |----------------|---------------|
-|   ![KakaoTalk_Video_2023-12-15-10-56-23 2](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/e22c7dd1-bdc4-4bd1-bcbb-5e937e14fd90) | ![KakaoTalk_Video_2023-12-15-10-56-23](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/c82cff4b-c50c-486d-a356-474072d838c0) |
+|   ![KakaoTalk_Video_2023-12-15-10-56-23 2](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/e22c7dd1-bdc4-4bd1-bcbb-5e937e14fd90) |  |
 
 
 ## 프로젝트 수행 방향
