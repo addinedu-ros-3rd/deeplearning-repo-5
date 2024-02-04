@@ -99,7 +99,7 @@
 
 ### 모델 성능
 |   |   |
-|--------|------|------|
+|---|---|
 |  ![confusion_matrix_normalized](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/5cdf6a7c-bc07-495c-a23b-95d6e643b8bb) |  ![confusion_matrix](https://github.com/addinedu-ros-3rd/deeplearning-repo-5/assets/146153434/e0623278-c60d-46eb-9588-9d985a11275e) |
 
 ## 회고
